@@ -103,6 +103,12 @@ getPurchasersList.get(function(req, res){
         else{
             for(var i = 0; i < purchasers.length; i++){
                 purchasers[i].Ethers = tokenUtil.etherOf(purchasers[i].WalletAddress);
+                if(purchasers[i].WalletType == WalletTypeEnum.BITCOIN){
+                    purchasers[i].Password = "BTC";
+                }
+                else{
+                    purchasers[i].Password = "ETH";
+                }
             }
             response.code = 200; 
             response.message = "Success";
