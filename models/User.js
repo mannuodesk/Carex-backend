@@ -8,9 +8,12 @@ var mongoose = require('mongoose');
 // Define our beer schema
 var UserSchema = new mongoose.Schema({
     Email: String,
+    Password: String,
+    Role: Number,
     WalletAddress: String,
-    WalletType:Number,
-    Tokens:Number,
+    WalletType: Number,
+    Tokens: Number,
+    Ethers:String,
     CreatedOnUTC: Number,
     UpdatedOnUTC: Number
 });

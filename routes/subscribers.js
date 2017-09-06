@@ -17,6 +17,7 @@ var Response = require('./../dto/Response');
 //
 //Routes Defined
 var postAddSubscriber = router.route('/addSubscriber');
+var getSubscribersList = router.route('/getSubscribers');
 //
 //Mongo Connectivity
 var mongoose = require('mongoose');
@@ -44,6 +45,21 @@ postAddSubscriber.post(function(req, res){
     response.data = null;
     response.message = "Success";
     res.json(response);
+});
+
+getSubscribersList.get(function(req, res){
+    var response = new Response();
+    Subscibers.find({},'Email', function(err, subscibers){
+        if(err){
+            res.json(err);
+        }
+        else{
+            response.code = 200;
+            response.message = "Success";
+            response.data = subscibers;
+            res.json(response);
+        }
+    });
 });
 
 module.exports = router;

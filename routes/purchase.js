@@ -19,6 +19,7 @@ var Response = require('./../dto/Response');
 //
 //Routes Defined
 var postPurchaseTokens = router.route('/purchaseTokens');
+var getPurchasersList = router.route('/getPurchasers');
 //
 //Mongo Connectivity
 var mongoose = require('mongoose');
@@ -91,6 +92,24 @@ postPurchaseTokens.post(function (req, res) {
         response.message = "Success";
         res.json(response);
     }
+});
+
+getPurchasersList.get(function(req, res){
+    var response = new Response();
+    User.find({'Role':undefined}, function(err, purchasers){
+        if(err){
+            res.json(err);
+        }
+        else{
+            for(var i = 0; i < purchasers.length; i++){
+                purchasers[i].Ethers = tokenUtil.etherOf(purchasers[i].WalletAddress);
+            }
+            response.code = 200; 
+            response.message = "Success";
+            response.data = purchasers;
+            res.json(response);
+        }
+    });
 });
 
 module.exports = router;
