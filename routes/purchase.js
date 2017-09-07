@@ -74,7 +74,7 @@ postPurchaseTokens.post(function (req, res) {
         if (currency != 'ETH') {
             var confirmationUrl = "https://chain.so/api/v2/is_tx_confirmed/" + currency + "/" + req.body.TxHash;
             var transactionDataUrl = "https://chain.so/api/v2/get_tx_outputs/" + currency + "/" + req.body.TxHash;
-            client.get(confirmationUrl, function (data, resp) {
+            client.get(confirmationUrl, function (data, r) {
                 // parsed response body as js object 
                 if (data.data.is_confirmed == true) {
 
@@ -84,7 +84,7 @@ postPurchaseTokens.post(function (req, res) {
                     //multiplication of final calculation with decimals
 
 
-                    client.get(transactionDataUrl, function (data, resp) {
+                    client.get(transactionDataUrl, function (data, r) {
 
                         var outputsArray = data.data.outputs;
                         var confirmationCount = 0;
@@ -120,7 +120,7 @@ postPurchaseTokens.post(function (req, res) {
                             response.code = ResponseCodeEnum.ERRORED;
                             response.message = "Transaction Not Confirmed by System";
                             response.data = null;
-                            res.json(res);
+                            res.json(response);
                         }
                     });
 
