@@ -1,12 +1,18 @@
 var express = require('express');
 var router = express.Router();
+var Client = require('node-rest-client').Client;
 
+var client = new Client();
 //Models Imported
 var User = require('./../models/User');
 //
 //Utiltiy Imported
 var PasswordHashing = require('./../utility/PasswordHashing');
 var passwordHashing = new PasswordHashing();
+//
+//Utiltiy Imported
+var tokenUtil = require('./../utility/tokenUtil');
+var tokenUtil = new tokenUtil();
 //
 //Enums, DTO's Imported
 var ResponseCodeEnum = require('./../enums/ResponseCodeEnum');
@@ -15,6 +21,7 @@ var Response = require('./../dto/Response');
 //Routes Defined
 var postAddUser = router.route('/addUser');
 var postLoginUser = router.route('/loginUser');
+var getDashboardData = router.route('/getDashboardData');
 //
 //Mongo Connectivity
 var mongoose = require('mongoose');
@@ -89,5 +96,20 @@ postLoginUser.post(function (req, res) {
       res.json(response);
     }
   });
+});
+getDashboardData.get(function(req, res){
+  var response = new Response();
+  var obj = new Object();
+  var url = "https://chain.so/api/v2/get_address_balance/BTC/" + global.AdminEthAddress;
+  obj.ethers = tokenUtil.getBalance(global.AdminEthAddress);
+  client.get(url, function (data, resp) {
+    obj.bitcoins = data.data.confirmed_balance;
+    obj.tokenRemaining = tokenUtil.getTokenRemain(global.AdminEthAddress);
+    response.code = 200;
+    response.data = obj;
+    response.message = "Success";
+    res.json(response);
+  });
+  
 });
 module.exports = router;

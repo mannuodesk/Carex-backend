@@ -11,6 +11,7 @@ var UserSchema = new mongoose.Schema({
     Password: String,
     Role: Number,
     WalletAddress: String,
+    EthAddress:String,
     WalletType: Number,
     Tokens: Number,
     Ethers:String,

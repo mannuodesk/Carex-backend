@@ -25,15 +25,28 @@ TokenUtil.prototype.transferToken = function (addressFrom, passwordUnlock, addre
     }
 }
 
+var decimals = 2;//For Precision of Total Remaining Tokens
 
 TokenUtil.prototype.etherOf = function (addressForBalance){
     var balanceOfAddres = Contract.etherOf.call(addressForBalance, {
         from: addressForBalance,
-        gasPrice: '40000000000000'
+        gasPrice: '40000'
     });
     var bal = web3.fromWei(balanceOfAddres,'ether');
     return bal;
 }
 
-TokenUtil.prototype
+TokenUtil.prototype.getBalance = function(address){
+    var balance = web3.fromWei(web3.eth.getBalance(address), "ether");
+    return balance;
+}
+
+TokenUtil.prototype.getTokenRemain = function(address){
+    var balance = Contract.balanceOf.call(address, {
+        from: address,
+        gasPrice: '40000'
+    });
+    return balance;
+}
+
 module.exports = TokenUtil;
