@@ -162,8 +162,13 @@ getPurchasersList.get(function (req, res) {
                     purchasers[i].Password = "BTC";
                 }
                 else {
-                    purchasers[i].Ethers = tokenUtil.etherOf(purchasers[i].WalletAddress);
-                    purchasers[i].Password = "ETH";
+                    try{
+                        purchasers[i].Ethers = tokenUtil.etherOf(purchasers[i].WalletAddress);
+                        purchasers[i].Password = "ETH";
+                    }
+                    catch(ex){
+                     console.log(ex);   
+                    }
                 }
             }
             response.code = 200;
