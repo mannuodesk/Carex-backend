@@ -35,6 +35,19 @@ TokenUtil.prototype.etherOf = function (addressForBalance){
     var bal = web3.fromWei(balanceOfAddres,'ether');
     return bal;
 }
+TokenUtil.prototype.balanceOf = function (addressForBalance){
+    var balanceOfAddres = Contract.balanceOf.call(addressForBalance, {
+        from: addressForBalance,
+        gasPrice: '40000'
+    });
+    return balanceOfAddres;
+}
+
+TokenUtil.prototype.totalSupply = function (){
+    var balanceOfAddres = Contract.totalSupply.call();
+    return balanceOfAddres;
+}
+
 
 TokenUtil.prototype.getBalance = function(address){
     var balance = web3.fromWei(web3.eth.getBalance(address), "ether");

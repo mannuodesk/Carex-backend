@@ -100,15 +100,20 @@ postLoginUser.post(function (req, res) {
 getDashboardData.get(function(req, res){
   var response = new Response();
   var obj = new Object();
-  var url = "https://chain.so/api/v2/get_address_balance/BTC/" + global.AdminEthAddress;
+  var bitcoinurl = "https://chain.so/api/v2/get_address_balance/BTC/" + global.AdminBitcoinAddress;
+  var litcoinurl = "https://chain.so/api/v2/get_address_balance/LTC/" + global.AdminLitcoinAddress;
   obj.ethers = tokenUtil.getBalance(global.AdminEthAddress);
-  client.get(url, function (data, resp) {
+  client.get(bitcoinurl, function (data, resp) {
     obj.bitcoins = data.data.confirmed_balance;
-    obj.tokenRemaining = tokenUtil.getTokenRemain(global.AdminEthAddress);
-    response.code = 200;
-    response.data = obj;
-    response.message = "Success";
-    res.json(response);
+    obj.tokenRemaining = tokenUtil.balanceOf(global.AdminEthAddress);
+    obj.totalCoins = tokenUtil.totalSupply();
+    client.get(litcoinurl, function (data, resp) {
+      obj.litcoins = data.data.confirmed_balance;
+      response.code = 200;
+      response.data = obj;
+      response.message = "Success";
+      res.json(response);
+    });
   });
   
 });
