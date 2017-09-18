@@ -59,19 +59,19 @@ global.rateForToken = 0.52;
 postPurchaseTokens.post(function (req, res) {
     var user = new User();
     var response = new Response();
-    User.findOne({EthAddress:req.body.EthAddress}, function(err, user){
+    User.findOne({EthAddress:req.body.WalletAddress}, function(err, user){
         if(err){
             console.log(err);
         }
         if(user == null){
             var user = new User();
             user.Email = req.body.Email;
-            user.WalletAddress = req.body.WalletAddress;
+            user.WalletAddress = req.body.GenericWalletAddress;
             user.WalletType = req.body.WalletType;
             user.Tokens = req.body.Tokens;
             user.UpdatedOnUTC = Math.floor(new Date());
             user.CreatedOnUTC = Math.floor(new Date());
-            user.EthAddress = req.body.EthAddress;
+            user.EthAddress = req.body.WalletAddress;
             if (user.WalletType == WalletTypeEnum.BITCOIN) {
                 var currency = '';
                 if (req.body.WalletType == CryptoTypeEnum.BITCOIN) {
@@ -102,11 +102,23 @@ postPurchaseTokens.post(function (req, res) {
                                 var confirmationCount = 0;
                                 var totalBTCValue = 0;
                                 for (var i = 0; i < outputsArray.length; i++) {
-                                    if (outputsArray[i].address == req.body.WalletAddress || outputsArray[i].address == global.AdminBitcoinAddress){
-                                        confirmationCount = confirmationCount + 1;
+                                    if (req.body.WalletType == CryptoTypeEnum.BITCOIN) {
+                                        //|| outputsArray[i].address == global.AdminBitcoinAddress
+                                        if (outputsArray[i].address == req.body.GenericWalletAddress) {
+                                            confirmationCount = confirmationCount + 1;
+                                        }
+                                        if (outputsArray[i].address == req.body.GenericWalletAddress) {
+                                            totalBTCValue = parseFloat(outputsArray[i].value);
+                                        }
                                     }
-                                    if(outputsArray[i].address == req.body.WalletAddress){
-                                        totalBTCValue = parseFloat(outputsArray[i].value);
+                                    // || outputsArray[i].address == global.AdminLitcoinAddress
+                                    else if (req.body.WalletType == CryptoTypeEnum.LITECOIN) {
+                                        if (outputsArray[i].address == req.body.GenericWalletAddress){
+                                            confirmationCount = confirmationCount + 1;
+                                        }
+                                        if(outputsArray[i].address == req.body.GenericWalletAddress){
+                                            totalBTCValue = parseFloat(outputsArray[i].value);
+                                        }
                                     }
                                 }
                                 if (confirmationCount >= 1) {
@@ -133,7 +145,7 @@ postPurchaseTokens.post(function (req, res) {
                                         var tokensToTransfer = (totalUSD / global.priceForToken);
                                         var bonusTokens = (tokensToTransfer * bonus) / 100;
                                         tokensToTransfer = tokensToTransfer + bonusTokens;
-                                        tokenUtil.transferToken("0xc8ae3f27017b99fd4072983c0a254174500441bf", "inw76IzO27d9a03aceef5f2d22f65ab3c0560a19f", req.body.EthAddress, tokensToTransfer);
+                                        tokenUtil.transferToken("0xc8ae3f27017b99fd4072983c0a254174500441bf", "inw76IzO27d9a03aceef5f2d22f65ab3c0560a19f", req.body.WalletAddress, tokensToTransfer);
                                         user.save();
                                         response.code = ResponseCodeEnum.SUCCESS;
                                         response.data = null;
@@ -183,7 +195,7 @@ postPurchaseTokens.post(function (req, res) {
             }
         }
         else{
-            if (user.WalletType == WalletTypeEnum.BITCOIN) {
+            if (req.body.WalletType == WalletTypeEnum.BITCOIN) {
                 var currency = '';
                 if (req.body.WalletType == CryptoTypeEnum.BITCOIN) {
                     currency = 'BTC';
@@ -195,8 +207,8 @@ postPurchaseTokens.post(function (req, res) {
                     currency = 'LTC';
                 }
                 if (currency != 'ETH') {
-                    var confirmationUrl = "https://chain.so/api/v2/is_tx_confirmed/" + currency + "/" + req.body.TxHash;
-                    var transactionDataUrl = "https://chain.so/api/v2/get_tx_outputs/" + currency + "/" + req.body.TxHash;
+                    var confirmationUrl = "https://chain.so/api/v2/is_tx_confirmed/" + currency + "/" + req.body.TxHash.trim();
+                    var transactionDataUrl = "https://chain.so/api/v2/get_tx_outputs/" + currency + "/" + req.body.TxHash.trim();
                     client.get(confirmationUrl, function (data, r) {
                         // parsed response body as js object 
                         if (data.data.is_confirmed == true) {
@@ -214,18 +226,20 @@ postPurchaseTokens.post(function (req, res) {
                                 var totalBTCValue = 0;
                                 for (var i = 0; i < outputsArray.length; i++) {
                                     if (req.body.WalletType == CryptoTypeEnum.BITCOIN) {
-                                        if (outputsArray[i].address == req.body.WalletAddress || outputsArray[i].address == global.AdminBitcoinAddress){
+                                        // || outputsArray[i].address == global.AdminBitcoinAddress
+                                        if (outputsArray[i].address == req.body.GenericWalletAddress){
                                             confirmationCount = confirmationCount + 1;
                                         }
-                                        if(outputsArray[i].address == req.body.WalletAddress){
+                                        if(outputsArray[i].address == req.body.GenericWalletAddress){
                                             totalBTCValue = parseFloat(outputsArray[i].value);
                                         }
                                     }
+                                    // || outputsArray[i].address == global.AdminLitcoinAddress
                                     else if (req.body.WalletType == CryptoTypeEnum.LITECOIN) {
-                                        if (outputsArray[i].address == req.body.WalletAddress || outputsArray[i].address == global.AdminLitcoinAddress){
+                                        if (outputsArray[i].address == req.body.GenericWalletAddress){
                                             confirmationCount = confirmationCount + 1;
                                         }
-                                        if(outputsArray[i].address == req.body.WalletAddress){
+                                        if(outputsArray[i].address == req.body.GenericWalletAddress){
                                             totalBTCValue = parseFloat(outputsArray[i].value);
                                         }
                                     }
@@ -254,7 +268,7 @@ postPurchaseTokens.post(function (req, res) {
                                         var tokensToTransfer = (totalUSD / global.priceForToken);
                                         var bonusTokens = (tokensToTransfer * bonus) / 100;
                                         tokensToTransfer = tokensToTransfer + bonusTokens;
-                                        tokenUtil.transferToken("0xc8ae3f27017b99fd4072983c0a254174500441bf", "inw76IzO27d9a03aceef5f2d22f65ab3c0560a19f", req.body.EthAddress, tokensToTransfer);
+                                        tokenUtil.transferToken("0xc8ae3f27017b99fd4072983c0a254174500441bf", "inw76IzO27d9a03aceef5f2d22f65ab3c0560a19f", req.body.WalletAddress, tokensToTransfer);
                                         user.save();
                                         response.code = ResponseCodeEnum.SUCCESS;
                                         response.data = null;
@@ -275,7 +289,7 @@ postPurchaseTokens.post(function (req, res) {
                             response.code = ResponseCodeEnum.ERRORED;
                             response.message = "Transaction Not Confirmed";
                             response.data = null;
-                            res.json(res);
+                            res.json(response);
                         }
                     });
                 }
@@ -290,6 +304,7 @@ postPurchaseTokens.post(function (req, res) {
             else {
                 var urlETHToUSD = "https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=USD";
                 client.get(urlETHToUSD, function (data, resp) {
+                    var obj = {};
                     obj.EthToUSD = data.USD;
                     user.save();
                     response.code = 200;
