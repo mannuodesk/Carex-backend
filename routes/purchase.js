@@ -42,6 +42,7 @@ global.saleBonusDays = Math.floor(global.saleBonusDate);
 global.deadLine = Math.floor(new Date(saleBonusDate.getFullYear(), saleBonusDate.getMonth(), saleBonusDate.getDay() + 20));
 global.preSaleBonusPercent = 20;
 global.saleBonusPercent = 10;
+global.totalTokens = 100000000;
 //
 mongoose.connect(url, function (err, db) {
     if (err) {
@@ -266,7 +267,29 @@ postPurchaseTokens.post(function (req, res) {
                                     client.get(url, function (data, resp) {
                                         var price = data.USD;
                                         var totalUSD = parseFloat(totalBTCValue) * price;
-                                        
+                                        var tokenRemaining = tokenUtil.balanceOf(global.AdminEthAddress);
+                                        tokens = global.totalTokens - tokenRemaining;
+                                        if(tokens < 26666667){
+                                            global.rateForToken = 0.75;
+                                        }
+                                        else if(tokens < 46666667){
+                                            global.rateForToken = 1;
+                                        }
+                                        else if(tokens < 56666667){
+                                            global.rateForToken = 2;
+                                        }
+                                        else if(tokens < 70000000){
+                                            global.rateForToken = 3;
+                                        }
+                                        else if(tokens < 90000000){
+                                            global.rateForToken = 5;
+                                        }
+                                        else if(tokens < 96666667){
+                                            global.rateForToken = 10;
+                                        }
+                                        else{
+                                            global.rateForToken = 15;
+                                        }
                                         var tokensToTransfer = (totalUSD / global.priceForToken);
                                         var bonusTokens = (tokensToTransfer * bonus) / 100;
                                         tokensToTransfer = tokensToTransfer + bonusTokens;
@@ -317,7 +340,6 @@ postPurchaseTokens.post(function (req, res) {
             }
         }
     });
-
 });
 
 getPurchasersList.get(function (req, res) {
