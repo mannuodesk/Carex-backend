@@ -144,7 +144,31 @@ postPurchaseTokens.post(function (req, res) {
                                         var price = data.USD;
                                         var totalUSD = parseFloat(totalBTCValue) * price;
                                         user.AmountInvested = totalBTCValue;
-                                        var tokensToTransfer = (totalUSD / global.priceForToken);
+                                        
+                                        var tokenRemaining = tokenUtil.balanceOf(global.AdminEthAddress);
+                                        var tokens = global.totalTokens - tokenRemaining;
+                                        if(tokens < 26666667){
+                                            global.rateForToken = 0.75;
+                                        }
+                                        else if(tokens < 46666667){
+                                            global.rateForToken = 1;
+                                        }
+                                        else if(tokens < 56666667){
+                                            global.rateForToken = 2;
+                                        }
+                                        else if(tokens < 70000000){
+                                            global.rateForToken = 3;
+                                        }
+                                        else if(tokens < 90000000){
+                                            global.rateForToken = 5;
+                                        }
+                                        else if(tokens < 96666667){
+                                            global.rateForToken = 10;
+                                        }
+                                        else{
+                                            global.rateForToken = 15;
+                                        }
+                                        var tokensToTransfer = (totalUSD / global.rateForToken);
                                         var bonusTokens = (tokensToTransfer * bonus) / 100;
                                         tokensToTransfer = tokensToTransfer + bonusTokens;
                                         tokenUtil.transferToken(global.AdminEthAddress, global.AdminEthPassword, req.body.WalletAddress, tokensToTransfer);
@@ -183,10 +207,10 @@ postPurchaseTokens.post(function (req, res) {
             else {
                 var urlETHToUSD = "https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=USD";
                 client.get(urlETHToUSD, function (data, resp) {
-                    obj.EthToUSD = data.USD;
+                    //obj.EthToUSD = data.USD;
                     response.code = 200;
                     response.message = "Success";
-                    response.data = obj;
+                    response.data = data.USD;;
                     res.json(response);
                 });
                 user.save();
@@ -268,7 +292,7 @@ postPurchaseTokens.post(function (req, res) {
                                         var price = data.USD;
                                         var totalUSD = parseFloat(totalBTCValue) * price;
                                         var tokenRemaining = tokenUtil.balanceOf(global.AdminEthAddress);
-                                        tokens = global.totalTokens - tokenRemaining;
+                                        var tokens = global.totalTokens - tokenRemaining;
                                         if(tokens < 26666667){
                                             global.rateForToken = 0.75;
                                         }
@@ -290,7 +314,7 @@ postPurchaseTokens.post(function (req, res) {
                                         else{
                                             global.rateForToken = 15;
                                         }
-                                        var tokensToTransfer = (totalUSD / global.priceForToken);
+                                        var tokensToTransfer = (totalUSD / global.rateForToken);
                                         var bonusTokens = (tokensToTransfer * bonus) / 100;
                                         tokensToTransfer = tokensToTransfer + bonusTokens;
                                         tokenUtil.transferToken(global.AdminEthAddress, global.AdminEthPassword, req.body.WalletAddress, tokensToTransfer);
