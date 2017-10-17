@@ -73,7 +73,7 @@ postPurchaseTokens.post(function (req, res) {
             user.UpdatedOnUTC = Math.floor(new Date());
             user.CreatedOnUTC = Math.floor(new Date());
             user.EthAddress = req.body.WalletAddress;
-            if (user.WalletType == WalletTypeEnum.BITCOIN) {
+            if (user.WalletType == WalletTypeEnum.BITCOIN || user.WalletType == WalletTypeEnum.LITECOIN) {
                 var currency = '';
                 if (req.body.WalletType == CryptoTypeEnum.BITCOIN) {
                     currency = 'BTC';

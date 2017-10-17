@@ -20,7 +20,6 @@ TokenUtil.prototype.transferToken = function (addressFrom, passwordUnlock, addre
         var tokenTransferRes = Contract.transfer.sendTransaction(addressToTransfer, totalTokens, {
             from: addressFrom,
             gas: '160000',
-			gasPrice:'21000000000'
         });
         return tokenTransferRes;
     } catch (err) {
