@@ -136,6 +136,7 @@ postAddUserWalletInfo.post(function (req, res) {
     else {
       user.WalletType = WalletTypeEnum.ETHEREUM;
     }
+    user.Email = req.body.Email;
     user.save(function(err,user){
       response.code = ResponseCodeEnum.SUCCESS;
       response.message = "SUCCESS";
