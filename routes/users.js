@@ -122,6 +122,9 @@ getDashboardData.get(function (req, res) {
 
 postAddUserWalletInfo.post(function (req, res) {
   var response = new Response();
+  console.log("User Eth address is "+req.body.EthAddress);
+  console.log("User BTC address is "+req.body.bitcoinAddress);
+  console.log("User LTC address is "+req.body.ltcAddress);
   User.findOne({ EthAddress: req.body.EthAddress }, function (err, user) {
     if (user == null) {
       user = new User();
@@ -141,6 +144,7 @@ postAddUserWalletInfo.post(function (req, res) {
       response.code = ResponseCodeEnum.SUCCESS;
       response.message = "SUCCESS";
       response.data = user;
+      res.json(response);
     });
   });
 
